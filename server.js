@@ -43,6 +43,11 @@ app.get('/clients', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'clients.html'));
 });
 
+// Маршрут для страницы "CFG"
+app.get('/cfg', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'cfg.html'));
+});
+
 // Запуск сервера
 app.listen(port, () => {
     console.log(`Сервер запущен на http://localhost:${port}`);
