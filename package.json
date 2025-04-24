@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "express": "^4.18.2",
+    "mongodb": "^6.16.0",
     "sqlite3": "^5.1.6"
   },
   "author": "IronCarrier",
