@@ -6,33 +6,8 @@
     <title>EliteCheats - CFG</title>
     <link rel="icon" type="image/png" href="/skull.png">
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css">
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
-            font-family: 'Press Start 2P', cursive;
-            color: #fff;
-        }
-        .container {
-            flex: 1;
-            text-align: center;
-            background: rgba(0, 0, 0, 0.8);
-            margin: 40px;
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
-            animation: fadeIn 1s ease-in-out;
-        }
-        h1 {
-            font-size: 1.5em;
-            margin-bottom: 20px;
-            text-shadow: 2px 2px 4px rgba(255, 0, 0, 0.7);
-            animation: glow 2s infinite alternate;
-        }
         .cfg-list {
             display: flex;
             flex-direction: column;
@@ -71,42 +46,6 @@
             font-size: 0.7em;
             color: #888;
         }
-        .nav-links {
-            margin-bottom: 30px;
-        }
-        .nav-links a {
-            color: #ff4444;
-            text-decoration: none;
-            margin: 0 15px;
-            font-size: 0.9em;
-            transition: color 0.3s;
-        }
-        .nav-links a:hover {
-            color: #00ff00;
-        }
-        footer {
-            background: rgba(0, 0, 0, 0.9);
-            padding: 10px;
-            text-align: center;
-            font-size: 0.7em;
-            color: #888;
-        }
-        footer a {
-            color: #ff4444;
-            text-decoration: none;
-            transition: color 0.3s;
-        }
-        footer a:hover {
-            color: #00ff00;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes glow {
-            from { text-shadow: 2px 2px 4px rgba(255, 0, 0, 0.7); }
-            to { text-shadow: 2px 2px 10px rgba(255, 0, 0, 1); }
-        }
     </style>
 </head>
 <body>
@@ -120,27 +59,40 @@
             <a href="/about">О нас</a>
         </div>
         <h1>EliteCheats - CFG</h1>
-        <div class="cfg-list">
-            <div class="cfg-card">
-                <a href="/cfg/venus_free.cfg">Скачать CFG для Venus Free</a>
-                <span>Формат: .cfg</span>
-            </div>
-            <div class="cfg-card">
-                <a href="/cfg/celestial.celka">Скачать CFG для Celestial</a>
-                <span>Формат: .celka</span>
-            </div>
-            <div class="cfg-card">
-                <a href="/cfg/nursultan.cfg">Скачать CFG для Nursultan</a>
-                <span>Формат: .cfg</span>
-            </div>
-            <div class="cfg-card">
-                <a href="#">Скачать CFG для других читов</a>
-                <span>Формат: уточняется</span>
-            </div>
+        <div class="cfg-list" id="cfg-list">
+            <!-- Список CFG будет добавлен динамически -->
         </div>
     </div>
     <footer>
         © 2025 EliteCheats. Все права защищены. | <a href="/">Главная</a> | <a href="/cheats">Читы</a> | <a href="/viruses">Вирусы</a> | <a href="/clients">Клиенты</a> | <a href="/cfg">CFG</a> | <a href="/about">О нас</a>
     </footer>
+    <script>
+        // Загружаем список CFG-файлов
+        fetch('/cfg-files')
+            .then(response => response.json())
+            .then(files => {
+                const cfgList = document.getElementById('cfg-list');
+                files.forEach(file => {
+                    const card = document.createElement('div');
+                    card.className = 'cfg-card';
+                    
+                    const link = document.createElement('a');
+                    link.href = `/cfg/${file}`;
+                    link.textContent = `Скачать ${file}`;
+                    
+                    const format = document.createElement('span');
+                    format.textContent = `Формат: ${file.split('.').pop()}`;
+                    
+                    card.appendChild(link);
+                    card.appendChild(format);
+                    cfgList.appendChild(card);
+                });
+            })
+            .catch(error => {
+                console.error('Ошибка загрузки CFG-файлов:', error);
+                const cfgList = document.getElementById('cfg-list');
+                cfgList.innerHTML = '<p>Ошибка загрузки CFG-файлов</p>';
+            });
+    </script>
 </body>
 </html>

@@ -1,14 +1,15 @@
 {
-     "name": "minecraft-cheats-site",
-     "version": "1.0.0",
-     "description": "EliteCheats - Minecraft Hacks",
-     "main": "server.js",
-     "scripts": {
-       "start": "node server.js"
-     },
-     "dependencies": {
-       "express": "^4.18.2"
-     },
-     "author": "IronCarrier",
-     "license": "ISC"
-   }
+  "name": "minecraft-cheats-site",
+  "version": "1.0.0",
+  "description": "EliteCheats - Minecraft Hacks",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "sqlite3": "^5.1.6"
+  },
+  "author": "IronCarrier",
+  "license": "ISC"
+}
