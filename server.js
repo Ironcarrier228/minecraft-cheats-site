@@ -1,7 +1,7 @@
 const express = require('express');
 const path = require('path');
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 // Middleware для обработки статических файлов (HTML, CSS и т.д.)
 app.use(express.static('public'));
@@ -41,16 +41,6 @@ app.get('/viruses', (req, res) => {
 // Маршрут для страницы "Клиенты"
 app.get('/clients', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'clients.html'));
-});
-
-// Маршрут для скачивания настоящего чита
-app.get('/download/killaura-real', (req, res) => {
-    res.download(path.join(__dirname, 'public', 'minecraft_killaura_real.exe'));
-});
-
-// Маршрут для скачивания клиента Minecraft 1.16.5
-app.get('/download/client-1.16.5', (req, res) => {
-    res.download(path.join(__dirname, 'public', 'Minecraft-1.16.5-Client.zip'));
 });
 
 // Запуск сервера
