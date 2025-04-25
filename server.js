@@ -8,20 +8,22 @@ const port = process.env.PORT || 3000;
 
 // Подключение к MongoDB (замени строку подключения на свою)
 const uri = "mongodb+srv://admin:<db_password>@cluster0.1d7m8rz.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
-const client = new MongoClient(uri);
+const client = new MongoClient(uri, { useUnifiedTopology: true, serverSelectionTimeoutMS: 5000 });
 
+let db, usersCollection;
+
+// Функция для подключения к MongoDB
 async function connectToMongoDB() {
     try {
         await client.connect();
         console.log('Подключено к MongoDB');
+        db = client.db('elitecheats');
+        usersCollection = db.collection('users');
     } catch (err) {
         console.error('Ошибка подключения к MongoDB:', err);
+        throw err; // Останавливаем сервер, если не удалось подключиться
     }
 }
-
-connectToMongoDB();
-const db = client.db('elitecheats');
-const usersCollection = db.collection('users');
 
 // Middleware
 app.use(express.static('public'));
@@ -39,6 +41,9 @@ app.get('/register', (req, res) => {
 
 // Обработка регистрации
 app.post('/register', async (req, res) => {
+    if (!usersCollection) {
+        return res.status(500).send('База данных недоступна');
+    }
     const { username, password } = req.body;
     if (!username || !password) {
         return res.send('Пожалуйста, заполните все поля');
@@ -53,12 +58,16 @@ app.post('/register', async (req, res) => {
         await usersCollection.insertOne({ username, password: hashedPassword });
         res.redirect('/');
     } catch (err) {
+        console.error('Ошибка регистрации:', err);
         res.send('Ошибка регистрации: ' + err.message);
     }
 });
 
 // Обработка логина
 app.post('/login', async (req, res) => {
+    if (!usersCollection) {
+        return res.status(500).send('База данных недоступна');
+    }
     const { username, password } = req.body;
     try {
         const user = await usersCollection.findOne({ username });
@@ -68,6 +77,7 @@ app.post('/login', async (req, res) => {
             res.send('Неверный логин или пароль');
         }
     } catch (err) {
+        console.error('Ошибка логина:', err);
         res.send('Ошибка: ' + err.message);
     }
 });
@@ -108,7 +118,12 @@ app.get('/cfg-files', (req, res) => {
     });
 });
 
-// Запуск сервера
-app.listen(port, () => {
-    console.log(`Сервер запущен на http://localhost:${port}`);
+// Запускаем сервер только после успешного подключения к MongoDB
+connectToMongoDB().then(() => {
+    app.listen(port, () => {
+        console.log(`Сервер запущен на http://localhost:${port}`);
+    });
+}).catch(err => {
+    console.error('Не удалось запустить сервер из-за ошибки MongoDB:', err);
+    process.exit(1); // Останавливаем процесс, если не удалось подключиться
 });
