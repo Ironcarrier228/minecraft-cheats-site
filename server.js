@@ -7,8 +7,8 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // Подключение к MongoDB (замени строку подключения на свою)
-const uri = "mongodb+srv://admin:<db_password>@cluster0.1d7m8rz.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
-const client = new MongoClient(uri, { useUnifiedTopology: true, serverSelectionTimeoutMS: 5000 });
+const uri = "mongodb+srv://admin:password1488@cluster0.1d7m8rz.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"; // Замени на свою строку подключения
+const client = new MongoClient(uri, { serverSelectionTimeoutMS: 5000 });
 
 let db, usersCollection;
 
