@@ -1,23 +1,27 @@
 const express = require('express');
 const path = require('path');
-const sqlite3 = require('sqlite3').verbose();
+const { MongoClient } = require('mongodb');
 const fs = require('fs');
+const bcrypt = require('bcrypt');
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Подключение к базе данных SQLite
-const db = new sqlite3.Database('users.db', (err) => {
-    if (err) {
-        console.error('Ошибка подключения к базе данных:', err.message);
-    } else {
-        console.log('Подключено к базе данных SQLite');
-        db.run(`CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT NOT NULL UNIQUE,
-            password TEXT NOT NULL
-        )`);
+// Подключение к MongoDB (замени строку подключения на свою)
+const uri = "mongodb+srv://admin:<db_password>@cluster0.1d7m8rz.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+const client = new MongoClient(uri);
+
+async function connectToMongoDB() {
+    try {
+        await client.connect();
+        console.log('Подключено к MongoDB');
+    } catch (err) {
+        console.error('Ошибка подключения к MongoDB:', err);
     }
-});
+}
+
+connectToMongoDB();
+const db = client.db('elitecheats');
+const usersCollection = db.collection('users');
 
 // Middleware
 app.use(express.static('public'));
@@ -34,35 +38,38 @@ app.get('/register', (req, res) => {
 });
 
 // Обработка регистрации
-app.post('/register', (req, res) => {
+app.post('/register', async (req, res) => {
     const { username, password } = req.body;
     if (!username || !password) {
         return res.send('Пожалуйста, заполните все поля');
     }
-    db.run(`INSERT INTO users (username, password) VALUES (?, ?)`, [username, password], function(err) {
-        if (err) {
-            if (err.message.includes('UNIQUE constraint failed')) {
-                return res.send('Пользователь с таким именем уже существует');
-            }
-            return res.send('Ошибка регистрации: ' + err.message);
+    try {
+        const existingUser = await usersCollection.findOne({ username });
+        if (existingUser) {
+            return res.send('Пользователь с таким именем уже существует');
         }
+        // Хешируем пароль
+        const hashedPassword = await bcrypt.hash(password, 10);
+        await usersCollection.insertOne({ username, password: hashedPassword });
         res.redirect('/');
-    });
+    } catch (err) {
+        res.send('Ошибка регистрации: ' + err.message);
+    }
 });
 
 // Обработка логина
-app.post('/login', (req, res) => {
+app.post('/login', async (req, res) => {
     const { username, password } = req.body;
-    db.get(`SELECT * FROM users WHERE username = ? AND password = ?`, [username, password], (err, row) => {
-        if (err) {
-            return res.send('Ошибка: ' + err.message);
-        }
-        if (row) {
+    try {
+        const user = await usersCollection.findOne({ username });
+        if (user && await bcrypt.compare(password, user.password)) {
             res.redirect('/cheats');
         } else {
             res.send('Неверный логин или пароль');
         }
-    });
+    } catch (err) {
+        res.send('Ошибка: ' + err.message);
+    }
 });
 
 // Маршрут для страницы с читами
