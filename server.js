@@ -1,13 +1,13 @@
 const express = require('express');
-const path = require('path');
+const path = require('path trainer');
 const { MongoClient } = require('mongodb');
-const fs = require('fs');
+const fs = require('fs').promises; // Используем promises для асинхронной работы с файлами
 const bcrypt = require('bcrypt');
 const app = express();
 const port = process.env.PORT || 3000;
 
 // Подключение к MongoDB (замени строку подключения на свою)
-const uri = "mongodb+srv://admin:password1488@cluster0.1d7m8rz.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"; // Замени на свою строку подключения
+const uri = "mongodb+srv://admin:password1488@cluster0.1d7m8rz.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"; // Обнови это
 const client = new MongoClient(uri, { serverSelectionTimeoutMS: 5000 });
 
 let db, usersCollection;
@@ -21,7 +21,7 @@ async function connectToMongoDB() {
         usersCollection = db.collection('users');
     } catch (err) {
         console.error('Ошибка подключения к MongoDB:', err);
-        throw err; // Останавливаем сервер, если не удалось подключиться
+        throw err;
     }
 }
 
@@ -53,7 +53,6 @@ app.post('/register', async (req, res) => {
         if (existingUser) {
             return res.send('Пользователь с таким именем уже существует');
         }
-        // Хешируем пароль
         const hashedPassword = await bcrypt.hash(password, 10);
         await usersCollection.insertOne({ username, password: hashedPassword });
         res.redirect('/');
@@ -107,15 +106,35 @@ app.get('/cfg', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'cfg.html'));
 });
 
-// Маршрут для получения списка CFG-файлов
-app.get('/cfg-files', (req, res) => {
-    const cfgDir = path.join(__dirname, 'public', 'cfg');
-    fs.readdir(cfgDir, (err, files) => {
-        if (err) {
-            return res.status(500).json({ error: 'Не удалось прочитать CFG-файлы' });
+// Рекурсивная функция для получения структуры папок и файлов
+async function getDirectoryStructure(dirPath, basePath = '') {
+    const result = { folders: {}, files: [] };
+    const entries = await fs.readdir(dirPath, { withFileTypes: true });
+
+    for (const entry of entries) {
+        const fullPath = path.join(dirPath, entry.name);
+        const relativePath = path.join(basePath, entry.name);
+
+        if (entry.isDirectory()) {
+            result.folders[entry.name] = await getDirectoryStructure(fullPath, relativePath);
+        } else if (entry.isFile() && entry.name.endsWith('.cfg')) {
+            result.files.push(entry.name);
         }
-        res.json(files);
-    });
+    }
+
+    return result;
+}
+
+// Маршрут для получения структуры CFG-файлов с подкаталогами
+app.get('/cfg-files', async (req, res) => {
+    const cfgDir = path.join(__dirname, 'public', 'cfg');
+    try {
+        const structure = await getDirectoryStructure(cfgDir);
+        res.json(structure);
+    } catch (err) {
+        console.error('Ошибка при чтении CFG-файлов:', err);
+        res.status(500).json({ error: 'Не удалось прочитать CFG-файлы' });
+    }
 });
 
 // Запускаем сервер только после успешного подключения к MongoDB
@@ -125,5 +144,5 @@ connectToMongoDB().then(() => {
     });
 }).catch(err => {
     console.error('Не удалось запустить сервер из-за ошибки MongoDB:', err);
-    process.exit(1); // Останавливаем процесс, если не удалось подключиться
+    process.exit(1);
 });
