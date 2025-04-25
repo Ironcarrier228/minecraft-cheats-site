@@ -3,135 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CFG - EliteCheats</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #1a1a1a;
-            color: #ffffff;
-            margin: 0;
-            padding: 20px;
-        }
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        .header h1 {
-            margin: 0;
-        }
-        .settings-icon {
-            font-size: 24px;
-            cursor: pointer;
-            color: #ffffff;
-        }
-        .settings-icon:hover {
-            color: #cccccc;
-        }
-        .folder, .file {
-            margin: 10px 0;
-            padding: 10px;
-            background-color: #2a2a2a;
-            border-radius: 5px;
-        }
-        .folder-name {
-            font-weight: bold;
-            cursor: pointer;
-            color: #00ff00;
-        }
-        .folder-name:hover {
-            text-decoration: underline;
-        }
-        .file {
-            display: inline-block;
-            margin: 5px;
-            padding: 5px 10px;
-            background-color: #3a3a3a;
-            border-radius: 3px;
-        }
-        .file a {
-            color: #00ff00;
-            text-decoration: none;
-        }
-        .file a:hover {
-            text-decoration: underline;
-        }
-        .folder-content {
-            margin-left: 20px;
-            display: none;
-        }
-        .folder-content.open {
-            display: block;
-        }
-    </style>
+    <title>Читы - EliteCheats</title>
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <div class="header">
-        <h1>CFG Файлы</h1>
-        <span class="settings-icon" onclick="openSettings()">⚙️</span>
+        <h1>EliteCheats</h1>
+        <i class="fas fa-cog settings-icon" onclick="openSettings()"></i>
     </div>
-    <div id="cfg-list"></div>
-
+    <nav>
+        <a href="/">Логин</a>
+        <a href="/register">Регистрация</a>
+        <a href="/cheats">Читы</a>
+        <a href="/about">О нас</a>
+        <a href="/viruses">Вирусы</a>
+        <a href="/clients">Клиенты</a>
+        <a href="/cfg">CFG</a>
+    </nav>
+    <div class="container">
+        <h2>Читы для Minecraft</h2>
+        <p>Здесь вы найдёте лучшие читы для Minecraft! Выберите подходящий и наслаждайтесь игрой.</p>
+        <ul>
+            <li>KillAura - Автоматическая атака врагов</li>
+            <li>FlyHack - Полёт в режиме выживания</li>
+            <li>X-Ray - Видеть сквозь блоки</li>
+        </ul>
+    </div>
+    <div class="footer">
+        © 2025 EliteCheats - Minecraft Hacks
+    </div>
     <script>
-        // Функция для загрузки структуры CFG-файлов
-        async function loadCfgFiles() {
-            try {
-                const response = await fetch('/cfg-files');
-                const data = await response.json();
-                if (data.error) {
-                    document.getElementById('cfg-list').innerHTML = `<p>${data.error}</p>`;
-                    return;
-                }
-                renderCfgStructure(data, document.getElementById('cfg-list'), '');
-            } catch (err) {
-                document.getElementById('cfg-list').innerHTML = `<p>Ошибка загрузки CFG-файлов: ${err.message}</p>`;
-            }
-        }
-
-        // Функция для отображения структуры папок и файлов
-        function renderCfgStructure(structure, parentElement, basePath) {
-            // Отображаем файлы на текущем уровне
-            if (structure.files && structure.files.length > 0) {
-                const filesDiv = document.createElement('div');
-                structure.files.forEach(file => {
-                    const fileDiv = document.createElement('div');
-                    fileDiv.className = 'file';
-                    fileDiv.innerHTML = `<a href="/cfg/${basePath}${file}" download>${file}</a>`;
-                    filesDiv.appendChild(fileDiv);
-                });
-                parentElement.appendChild(filesDiv);
-            }
-
-            // Отображаем папки
-            if (structure.folders) {
-                for (const [folderName, folderContent] of Object.entries(structure.folders)) {
-                    const folderDiv = document.createElement('div');
-                    folderDiv.className = 'folder';
-                    folderDiv.innerHTML = `<div class="folder-name">${folderName}</div>`;
-                    const folderContentDiv = document.createElement('div');
-                    folderContentDiv.className = 'folder-content';
-                    folderDiv.appendChild(folderContentDiv);
-                    parentElement.appendChild(folderDiv);
-
-                    // Добавляем обработчик клика для раскрытия папки
-                    folderDiv.querySelector('.folder-name').addEventListener('click', () => {
-                        folderContentDiv.classList.toggle('open');
-                        if (folderContentDiv.classList.contains('open')) {
-                            renderCfgStructure(folderContent, folderContentDiv, `${basePath}${folderName}/`);
-                        }
-                    });
-                }
-            }
-        }
-
-        // Функция для открытия настроек
         function openSettings() {
-            alert('Настройки пока в разработке! Здесь можно будет настроить отображение CFG-файлов.');
+            alert('Настройки пока в разработке!');
         }
-
-        // Загружаем CFG-файлы при загрузке страницы
-        window.onload = loadCfgFiles;
     </script>
 </body>
 </html>

@@ -1,98 +1,127 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EliteCheats - CFG</title>
-    <link rel="icon" type="image/png" href="/skull.png">
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <title>CFG - EliteCheats</title>
     <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .cfg-list {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
-        }
-        .cfg-card {
-            background: #333;
-            padding: 15px;
-            border-radius: 10px;
-            width: 300px;
-            text-align: center;
-            transition: transform 0.2s, box-shadow 0.3s;
-            box-shadow: 0 0 15px rgba(255, 0, 0, 0.3);
-        }
-        .cfg-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 0 25px rgba(255, 0, 0, 0.7);
-        }
-        .cfg-card a {
-            display: block;
+        .folder, .file {
+            margin: 10px 0;
             padding: 10px;
-            background: #ff4444;
-            color: #fff;
-            text-decoration: none;
+            background-color: #3a3a3a;
             border-radius: 5px;
-            font-size: 0.9em;
-            transition: background 0.3s;
+            transition: background-color 0.3s ease;
         }
-        .cfg-card a:hover {
-            background: #00ff00;
+        .folder:hover, .file:hover {
+            background-color: #4a4a4a;
         }
-        .cfg-card span {
+        .folder-name {
+            font-weight: bold;
+            cursor: pointer;
+            color: #00ff00;
+        }
+        .folder-name:hover {
+            text-decoration: underline;
+        }
+        .file {
+            display: inline-block;
+            margin: 5px;
+            padding: 5px 10px;
+            background-color: #444444;
+            border-radius: 3px;
+        }
+        .file a {
+            color: #00ff00;
+            text-decoration: none;
+        }
+        .file a:hover {
+            text-decoration: underline;
+        }
+        .folder-content {
+            margin-left: 20px;
+            display: none;
+        }
+        .folder-content.open {
             display: block;
-            margin-top: 5px;
-            font-size: 0.7em;
-            color: #888;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="nav-links">
-            <a href="/">Главная</a>
-            <a href="/cheats">Читы</a>
-            <a href="/viruses">Вирусы</a>
-            <a href="/clients">Клиенты</a>
-            <a href="/cfg">CFG</a>
-            <a href="/about">О нас</a>
-        </div>
-        <h1>EliteCheats - CFG</h1>
-        <div class="cfg-list" id="cfg-list">
-            <!-- Список CFG будет добавлен динамически -->
-        </div>
+    <div class="header">
+        <h1>EliteCheats</h1>
+        <i class="fas fa-cog settings-icon" onclick="openSettings()"></i>
     </div>
-    <footer>
-        © 2025 EliteCheats. Все права защищены. | <a href="/">Главная</a> | <a href="/cheats">Читы</a> | <a href="/viruses">Вирусы</a> | <a href="/clients">Клиенты</a> | <a href="/cfg">CFG</a> | <a href="/about">О нас</a>
-    </footer>
+    <nav>
+        <a href="/">Логин</a>
+        <a href="/register">Регистрация</a>
+        <a href="/cheats">Читы</a>
+        <a href="/about">О нас</a>
+        <a href="/viruses">Вирусы</a>
+        <a href="/clients">Клиенты</a>
+        <a href="/cfg">CFG</a>
+    </nav>
+    <div class="container">
+        <h2>CFG Файлы</h2>
+        <div id="cfg-list"></div>
+    </div>
+    <div class="footer">
+        © 2025 EliteCheats - Minecraft Hacks
+    </div>
+
     <script>
-        // Загружаем список CFG-файлов
-        fetch('/cfg-files')
-            .then(response => response.json())
-            .then(files => {
-                const cfgList = document.getElementById('cfg-list');
-                files.forEach(file => {
-                    const card = document.createElement('div');
-                    card.className = 'cfg-card';
-                    
-                    const link = document.createElement('a');
-                    link.href = `/cfg/${file}`;
-                    link.textContent = `Скачать ${file}`;
-                    
-                    const format = document.createElement('span');
-                    format.textContent = `Формат: ${file.split('.').pop()}`;
-                    
-                    card.appendChild(link);
-                    card.appendChild(format);
-                    cfgList.appendChild(card);
+        async function loadCfgFiles() {
+            try {
+                const response = await fetch('/cfg-files');
+                const data = await response.json();
+                if (data.error) {
+                    document.getElementById('cfg-list').innerHTML = `<p>${data.error}</p>`;
+                    return;
+                }
+                renderCfgStructure(data, document.getElementById('cfg-list'), '');
+            } catch (err) {
+                document.getElementById('cfg-list').innerHTML = `<p>Ошибка загрузки CFG-файлов: ${err.message}</p>`;
+            }
+        }
+
+        function renderCfgStructure(structure, parentElement, basePath) {
+            if (structure.files && structure.files.length > 0) {
+                const filesDiv = document.createElement('div');
+                structure.files.forEach(file => {
+                    const fileDiv = document.createElement('div');
+                    fileDiv.className = 'file';
+                    fileDiv.innerHTML = `<a href="/cfg/${basePath}${file}" download>${file}</a>`;
+                    filesDiv.appendChild(fileDiv);
                 });
-            })
-            .catch(error => {
-                console.error('Ошибка загрузки CFG-файлов:', error);
-                const cfgList = document.getElementById('cfg-list');
-                cfgList.innerHTML = '<p>Ошибка загрузки CFG-файлов</p>';
-            });
+                parentElement.appendChild(filesDiv);
+            }
+
+            if (structure.folders) {
+                for (const [folderName, folderContent] of Object.entries(structure.folders)) {
+                    const folderDiv = document.createElement('div');
+                    folderDiv.className = 'folder';
+                    folderDiv.innerHTML = `<div class="folder-name">${folderName}</div>`;
+                    const folderContentDiv = document.createElement('div');
+                    folderContentDiv.className = 'folder-content';
+                    folderDiv.appendChild(folderContentDiv);
+                    parentElement.appendChild(folderDiv);
+
+                    folderDiv.querySelector('.folder-name').addEventListener('click', () => {
+                        folderContentDiv.classList.toggle('open');
+                        if (folderContentDiv.classList.contains('open')) {
+                            renderCfgStructure(folderContent, folderContentDiv, `${basePath}${folderName}/`);
+                        }
+                    });
+                }
+            }
+        }
+
+        function openSettings() {
+            alert('Настройки пока в разработке!');
+        }
+
+        window.onload = loadCfgFiles;
     </script>
 </body>
 </html>
