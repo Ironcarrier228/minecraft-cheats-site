@@ -21,9 +21,15 @@
             font-weight: bold;
             cursor: pointer;
             color: #00ff00;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
         .folder-name:hover {
             text-decoration: underline;
+        }
+        .folder-name i {
+            font-size: 14px;
         }
         .file {
             display: inline-block;
@@ -101,15 +107,21 @@
                 for (const [folderName, folderContent] of Object.entries(structure.folders)) {
                     const folderDiv = document.createElement('div');
                     folderDiv.className = 'folder';
-                    folderDiv.innerHTML = `<div class="folder-name">${folderName}</div>`;
+                    folderDiv.innerHTML = `
+                        <div class="folder-name">
+                            <i class="fas fa-plus"></i>
+                            ${folderName}
+                        </div>`;
                     const folderContentDiv = document.createElement('div');
                     folderContentDiv.className = 'folder-content';
                     folderDiv.appendChild(folderContentDiv);
                     parentElement.appendChild(folderDiv);
 
                     folderDiv.querySelector('.folder-name').addEventListener('click', () => {
-                        folderContentDiv.classList.toggle('open');
-                        if (folderContentDiv.classList.contains('open')) {
+                        const isOpen = folderContentDiv.classList.toggle('open');
+                        const icon = folderDiv.querySelector('.folder-name i');
+                        icon.className = isOpen ? 'fas fa-minus' : 'fas fa-plus';
+                        if (isOpen) {
                             renderCfgStructure(folderContent, folderContentDiv, `${basePath}${folderName}/`);
                         }
                     });
