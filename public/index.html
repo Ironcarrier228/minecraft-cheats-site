@@ -1,42 +1,31 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Логин - EliteCheats</title>
+    <title>EliteCheats - Minecraft Hacks</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="/styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <div class="header">
-        <h1>EliteCheats</h1>
-        <i class="fas fa-cog settings-icon" onclick="openSettings()"></i>
+    <div class="navbar">
+        <a href="/">Home</a>
+        <a href="/cfg">Config</a>
+        <a href="/viruses">Viruses</a>
     </div>
-    <nav>
-        <a href="/">Логин</a>
-        <a href="/register">Регистрация</a>
-        <a href="/cheats">Читы</a>
-        <a href="/about">О нас</a>
-        <a href="/viruses">Вирусы</a>
-        <a href="/clients">Клиенты</a>
-        <a href="/cfg">CFG</a>
-    </nav>
+
     <div class="container">
-        <h2>Вход</h2>
-        <form action="/login" method="POST">
-            <input type="text" name="username" placeholder="Имя пользователя" required>
-            <input type="password" name="password" placeholder="Пароль" required>
-            <button type="submit">Войти</button>
-        </form>
-        <p>Нет аккаунта? <a href="/register">Зарегистрируйтесь</a></p>
+        <div class="hero">
+            <h1>Welcome to EliteCheats</h1>
+            <h2>Your Ultimate Minecraft Hacking Hub</h2>
+            <p>Download the best cheats, configs, and tools to dominate in Minecraft. Explore our viruses and configurations now!</p>
+            <a href="/viruses">Get Started</a>
+        </div>
     </div>
-    <div class="footer">
-        © 2025 EliteCheats - Minecraft Hacks
-    </div>
-    <script>
-        function openSettings() {
-            alert('Настройки пока в разработке!');
-        }
-    </script>
+
+    <footer>
+        <p>© 2025 EliteCheats - Minecraft Hacks</p>
+    </footer>
 </body>
 </html>

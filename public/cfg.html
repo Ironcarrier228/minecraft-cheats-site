@@ -1,139 +1,57 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CFG - EliteCheats</title>
+    <title>EliteCheats - Config</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="/styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        .folder, .file {
-            margin: 10px 0;
-            padding: 10px;
-            background-color: #3a3a3a;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
-        }
-        .folder:hover, .file:hover {
-            background-color: #4a4a4a;
-        }
-        .folder-name {
-            font-weight: bold;
-            cursor: pointer;
-            color: #00ff00;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        .folder-name:hover {
-            text-decoration: underline;
-        }
-        .folder-name i {
-            font-size: 14px;
-        }
-        .file {
-            display: inline-block;
-            margin: 5px;
-            padding: 5px 10px;
-            background-color: #444444;
-            border-radius: 3px;
-        }
-        .file a {
-            color: #00ff00;
-            text-decoration: none;
-        }
-        .file a:hover {
-            text-decoration: underline;
-        }
-        .folder-content {
-            margin-left: 20px;
-            display: none;
-        }
-        .folder-content.open {
-            display: block;
-        }
-    </style>
 </head>
 <body>
-    <div class="header">
-        <h1>EliteCheats</h1>
-        <i class="fas fa-cog settings-icon" onclick="openSettings()"></i>
+    <div class="navbar">
+        <a href="/">Home</a>
+        <a href="/cfg">Config</a>
+        <a href="/viruses">Viruses</a>
     </div>
-    <nav>
-        <a href="/">Логин</a>
-        <a href="/register">Регистрация</a>
-        <a href="/cheats">Читы</a>
-        <a href="/about">О нас</a>
-        <a href="/viruses">Вирусы</a>
-        <a href="/clients">Клиенты</a>
-        <a href="/cfg">CFG</a>
-    </nav>
+
     <div class="container">
-        <h2>CFG Файлы</h2>
-        <div id="cfg-list"></div>
+        <h1>Configurations</h1>
+        <div class="config-section">
+            <h2>Folders</h2>
+            <div class="folder">
+                <i class="fas fa-folder"></i>
+                <a href="#">venus free</a>
+                <i class="fas fa-plus toggle" onclick="toggleFiles(this)"></i>
+            </div>
+            <div class="files">
+                <a href="/cfg/venus free/venus_free.cfg">venus_free.cfg</a>
+                <a href="/cfg/venus free/venus_extra.cfg">venus_extra.cfg</a>
+            </div>
+            <div class="folder">
+                <i class="fas fa-cog"></i>
+                <a href="#">Settings</a>
+            </div>
+        </div>
     </div>
-    <div class="footer">
-        © 2025 EliteCheats - Minecraft Hacks
-    </div>
+
+    <footer>
+        <p>© 2025 EliteCheats - Minecraft Hacks</p>
+    </footer>
 
     <script>
-        async function loadCfgFiles() {
-            try {
-                const response = await fetch('/cfg-files');
-                const data = await response.json();
-                if (data.error) {
-                    document.getElementById('cfg-list').innerHTML = `<p>${data.error}</p>`;
-                    return;
-                }
-                renderCfgStructure(data, document.getElementById('cfg-list'), '');
-            } catch (err) {
-                document.getElementById('cfg-list').innerHTML = `<p>Ошибка загрузки CFG-файлов: ${err.message}</p>`;
+        function toggleFiles(element) {
+            const files = element.parentElement.nextElementSibling;
+            if (files.style.display === "block") {
+                files.style.display = "none";
+                element.classList.remove("fa-minus");
+                element.classList.add("fa-plus");
+            } else {
+                files.style.display = "block";
+                element.classList.remove("fa-plus");
+                element.classList.add("fa-minus");
             }
         }
-
-        function renderCfgStructure(structure, parentElement, basePath) {
-            if (structure.files && structure.files.length > 0) {
-                const filesDiv = document.createElement('div');
-                structure.files.forEach(file => {
-                    const fileDiv = document.createElement('div');
-                    fileDiv.className = 'file';
-                    fileDiv.innerHTML = `<a href="/cfg/${basePath}${file}" download>${file}</a>`;
-                    filesDiv.appendChild(fileDiv);
-                });
-                parentElement.appendChild(filesDiv);
-            }
-
-            if (structure.folders) {
-                for (const [folderName, folderContent] of Object.entries(structure.folders)) {
-                    const folderDiv = document.createElement('div');
-                    folderDiv.className = 'folder';
-                    folderDiv.innerHTML = `
-                        <div class="folder-name">
-                            <i class="fas fa-plus"></i>
-                            ${folderName}
-                        </div>`;
-                    const folderContentDiv = document.createElement('div');
-                    folderContentDiv.className = 'folder-content';
-                    folderDiv.appendChild(folderContentDiv);
-                    parentElement.appendChild(folderDiv);
-
-                    folderDiv.querySelector('.folder-name').addEventListener('click', () => {
-                        const isOpen = folderContentDiv.classList.toggle('open');
-                        const icon = folderDiv.querySelector('.folder-name i');
-                        icon.className = isOpen ? 'fas fa-minus' : 'fas fa-plus';
-                        if (isOpen) {
-                            renderCfgStructure(folderContent, folderContentDiv, `${basePath}${folderName}/`);
-                        }
-                    });
-                }
-            }
-        }
-
-        function openSettings() {
-            alert('Настройки пока в разработке!');
-        }
-
-        window.onload = loadCfgFiles;
     </script>
 </body>
 </html>

