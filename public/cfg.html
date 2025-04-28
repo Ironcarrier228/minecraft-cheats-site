@@ -3,55 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EliteCheats - Config</title>
-    <link rel="icon" type="image/png" href="/favicon.png">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <link rel="stylesheet" href="/styles.css">
+    <meta name="description" content="Download CFG files for Minecraft hacks at EliteCheats.">
+    <meta name="keywords" content="Minecraft CFG, Venus Free, EliteCheats">
+    <title>CFG - EliteCheats</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
 </head>
 <body>
-    <div class="navbar">
-        <a href="/">Home</a>
-        <a href="/cfg">Config</a>
-        <a href="/viruses">Viruses</a>
-    </div>
-
     <div class="container">
-        <h1>Configurations</h1>
-        <div class="config-section">
-            <h2>Folders</h2>
-            <div class="folder">
-                <i class="fas fa-folder"></i>
-                <a href="#">venus free</a>
-                <i class="fas fa-plus toggle" onclick="toggleFiles(this)"></i>
-            </div>
-            <div class="files">
-                <a href="/cfg/venus free/venus_free.cfg">venus_free.cfg</a>
-                <a href="/cfg/venus free/venus_extra.cfg">venus_extra.cfg</a>
-            </div>
-            <div class="folder">
-                <i class="fas fa-cog"></i>
-                <a href="#">Settings</a>
-            </div>
-        </div>
+        <h1>CFG Files</h1>
+        <p>Download CFG for Venus Free:</p>
+        <a id="cfgLink1" href="public/cfg/venus free/venus_free.cfg">Venus Free CFG</a>
+        <a id="cfgLink2" href="public/cfg/venus free/venus_extra.cfg">Venus Extra CFG</a>
     </div>
-
-    <footer>
-        <p>© 2025 EliteCheats - Minecraft Hacks</p>
-    </footer>
-
+    <div id="preloader" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #121212; z-index: 9999;">
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">Loading...</div>
+    </div>
     <script>
-        function toggleFiles(element) {
-            const files = element.parentElement.nextElementSibling;
-            if (files.style.display === "block") {
-                files.style.display = "none";
-                element.classList.remove("fa-minus");
-                element.classList.add("fa-plus");
-            } else {
-                files.style.display = "block";
-                element.classList.remove("fa-plus");
-                element.classList.add("fa-minus");
-            }
+        // Preloader
+        window.onload = function() {
+            document.getElementById("preloader").style.display = "none";
+        };
+
+        // Copy protection
+        document.addEventListener("copy", function(e) {
+            e.preventDefault();
+            alert("Copying is disabled on this site!");
+        });
+
+        // "Firewall" simulation: block functionality if suspicious
+        let isBlocked = false;
+
+        function checkForSuspiciousActivity() {
+            alert("Warning: Suspicious activity detected (e.g., Simple Unlocker or Process Hacker). Functionality limited.");
+            isBlocked = true;
+            document.getElementById("cfgLink1").removeAttribute("href");
+            document.getElementById("cfgLink2").removeAttribute("href");
+            document.getElementById("cfgLink1").style.pointerEvents = "none";
+            document.getElementById("cfgLink2").style.pointerEvents = "none";
         }
+
+        // Handle Ctrl+U (block functionality)
+        document.addEventListener("keydown", function(e) {
+            if (e.ctrlKey && e.key === "u") {
+                e.preventDefault();
+                isBlocked = true;
+                alert("Access restricted due to Ctrl+U (simulated firewall block).");
+                document.getElementById("cfgLink1").removeAttribute("href");
+                document.getElementById("cfgLink2").removeAttribute("href");
+                document.getElementById("cfgLink1").style.pointerEvents = "none";
+                document.getElementById("cfgLink2").style.pointerEvents = "none";
+            }
+        });
+
+        // Handle Ctrl+F12 (block functionality)
+        document.addEventListener("keydown", function(e) {
+            if (e.ctrlKey && e.key === "F12") {
+                e.preventDefault();
+                isBlocked = true;
+                alert("Access restricted due to Ctrl+F12 (simulated firewall block).");
+                document.getElementById("cfgLink1").removeAttribute("href");
+                document.getElementById("cfgLink2").removeAttribute("href");
+                document.getElementById("cfgLink1").style.pointerEvents = "none";
+                document.getElementById("cfgLink2").style.pointerEvents = "none";
+            }
+        });
+
+        window.addEventListener("load", checkForSuspiciousActivity);
     </script>
 </body>
 </html>

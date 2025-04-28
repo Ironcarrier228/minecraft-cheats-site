@@ -1,0 +1,4 @@
+<FilesMatch "\.(exe|cfg)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>

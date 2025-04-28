@@ -3,29 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="EliteCheats offers the best Minecraft hacks and cheats.">
+    <meta name="keywords" content="Minecraft hacks, cheats, EliteCheats">
     <title>EliteCheats - Minecraft Hacks</title>
-    <link rel="icon" type="image/png" href="/favicon.png">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
 </head>
 <body>
-    <div class="navbar">
-        <a href="/">Home</a>
-        <a href="/cfg">Config</a>
-        <a href="/viruses">Viruses</a>
-    </div>
-
     <div class="container">
-        <div class="hero">
-            <h1>Welcome to EliteCheats</h1>
-            <h2>Your Ultimate Minecraft Hacking Hub</h2>
-            <p>Download the best cheats, configs, and tools to dominate in Minecraft. Explore our viruses and configurations now!</p>
-            <a href="/viruses">Get Started</a>
-        </div>
+        <h1>Welcome to EliteCheats</h1>
+        <p>Best Minecraft Hacks and Cheats!</p>
+        <button id="getStartedBtn">Get Started</button>
     </div>
+    <div id="preloader" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #121212; z-index: 9999;">
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">Loading...</div>
+    </div>
+    <script>
+        // Preloader
+        window.onload = function() {
+            document.getElementById("preloader").style.display = "none";
+        };
 
-    <footer>
-        <p>© 2025 EliteCheats - Minecraft Hacks</p>
-    </footer>
+        // Copy protection
+        document.addEventListener("copy", function(e) {
+            e.preventDefault();
+            alert("Copying is disabled on this site!");
+        });
+
+        // "Firewall" simulation: block functionality if suspicious
+        let isBlocked = false;
+
+        // Simulate detection of Simple Unlocker or Process Hacker (client-side detection limited)
+        function checkForSuspiciousActivity() {
+            // В реальном мире это может быть сложнее (например, проверка через сервер)
+            // Здесь мы просто симулируем блокировку
+            alert("Warning: Suspicious activity detected (e.g., Simple Unlocker or Process Hacker). Functionality limited.");
+            isBlocked = true;
+            document.getElementById("getStartedBtn").disabled = true;
+        }
+
+        // Handle Ctrl+U (block functionality)
+        document.addEventListener("keydown", function(e) {
+            if (e.ctrlKey && e.key === "u") {
+                e.preventDefault();
+                isBlocked = true;
+                alert("Access restricted due to Ctrl+U (simulated firewall block).");
+                document.getElementById("getStartedBtn").disabled = true;
+            }
+        });
+
+        // Handle Ctrl+F12 (block functionality)
+        document.addEventListener("keydown", function(e) {
+            if (e.ctrlKey && e.key === "F12") {
+                e.preventDefault();
+                isBlocked = true;
+                alert("Access restricted due to Ctrl+F12 (simulated firewall block).");
+                document.getElementById("getStartedBtn").disabled = true;
+            }
+        });
+
+        // Simulate suspicious activity check on page load
+        window.addEventListener("load", checkForSuspiciousActivity);
+    </script>
 </body>
 </html>
