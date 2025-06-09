@@ -1,65 +1,61 @@
-require('dotenv').config(); // Загрузка переменных окружения из .env
+// Загрузка переменных окружения из .env
+require('dotenv').config();
 
 const express = require('express');
 const path = require('path');
 const { MongoClient } = require('mongodb');
 const fs = require('fs');
+
 const app = express();
 const port = process.env.PORT || 3000;
-
-// Проверка переменной окружения
 const uri = process.env.MONGODB_URI;
+
 if (!uri) {
     console.error("❌ Переменная MONGODB_URI не определена!");
     process.exit(1);
 }
 
-// Инициализация клиента MongoDB
 const client = new MongoClient(uri, { useUnifiedTopology: true });
 let usersCollection;
 
 async function startServer() {
     try {
-        // Подключение к базе
         await client.connect();
-        const db = client.db('minecraft'); // имя базы данных
+        const db = client.db('minecraft');
         usersCollection = db.collection('users');
-        console.log('✅ Успешное подключение к MongoDB');
+        console.log('✅ Подключено к MongoDB');
 
         // Middleware
-        app.use(express.static('public'));
+        app.use(express.static(path.join(__dirname, 'public')));
         app.use(express.urlencoded({ extended: true }));
 
-        // Главная страница (логин)
-        app.get('/', (req, res) => {
-            res.sendFile(path.join(__dirname, 'public', 'index.html'));
+        // ===== Статические HTML-страницы =====
+        const staticPages = ['/', '/register', '/login', '/cheats', '/about', '/viruses', '/clients', '/cfg'];
+        staticPages.forEach(route => {
+            const fileName = route === '/' ? 'index.html' : route.substring(1) + '.html';
+            app.get(route, (req, res) => {
+                res.sendFile(path.join(__dirname, 'public', fileName));
+            });
         });
 
-        // Страница регистрации
-        app.get('/register', (req, res) => {
-            res.sendFile(path.join(__dirname, 'public', 'register.html'));
-        });
-
-        // Обработка регистрации
+        // ===== Обработка регистрации =====
         app.post('/register', async (req, res) => {
             const { username, password } = req.body;
-            if (!username || !password) {
-                return res.send('Пожалуйста, заполните все поля');
-            }
+            if (!username || !password) return res.send('⚠️ Заполните все поля');
+
             try {
                 const existing = await usersCollection.findOne({ username });
-                if (existing) {
-                    return res.send('Пользователь с таким именем уже существует');
-                }
+                if (existing) return res.send('⚠️ Пользователь уже существует');
+
                 await usersCollection.insertOne({ username, password });
-                res.redirect('/');
+                res.redirect('/login');
             } catch (err) {
                 console.error(err);
-                res.send('Ошибка регистрации: ' + err.message);
+                res.status(500).send('❌ Ошибка при регистрации: ' + err.message);
             }
         });
 
-        // Обработка логина
+        // ===== Обработка логина =====
         app.post('/login', async (req, res) => {
             const { username, password } = req.body;
             try {
@@ -67,52 +63,32 @@ async function startServer() {
                 if (user) {
                     res.redirect('/cheats');
                 } else {
-                    res.send('Неверный логин или пароль');
+                    res.send('❌ Неверный логин или пароль');
                 }
             } catch (err) {
                 console.error(err);
-                res.send('Ошибка: ' + err.message);
+                res.status(500).send('❌ Ошибка при входе: ' + err.message);
             }
         });
 
-        // Страницы сайта
-        app.get('/cheats', (req, res) => {
-            res.sendFile(path.join(__dirname, 'public', 'cheats.html'));
-        });
-
-        app.get('/about', (req, res) => {
-            res.sendFile(path.join(__dirname, 'public', 'about.html'));
-        });
-
-        app.get('/viruses', (req, res) => {
-            res.sendFile(path.join(__dirname, 'public', 'viruses.html'));
-        });
-
-        app.get('/clients', (req, res) => {
-            res.sendFile(path.join(__dirname, 'public', 'clients.html'));
-        });
-
-        app.get('/cfg', (req, res) => {
-            res.sendFile(path.join(__dirname, 'public', 'cfg.html'));
-        });
-
+        // ===== Список CFG-файлов =====
         app.get('/cfg-files', (req, res) => {
             const cfgDir = path.join(__dirname, 'public', 'cfg');
             fs.readdir(cfgDir, (err, files) => {
                 if (err) {
-                    return res.status(500).json({ error: 'Не удалось прочитать CFG-файлы' });
+                    return res.status(500).json({ error: '❌ Ошибка чтения CFG-файлов' });
                 }
                 res.json(files);
             });
         });
 
-        // Запуск сервера
+        // ===== Запуск сервера =====
         app.listen(port, () => {
             console.log(`🚀 Сервер запущен: http://localhost:${port}`);
         });
 
     } catch (error) {
-        console.error('❌ Ошибка подключения к MongoDB:+ у тебя пенис в жопе', error.message);
+        console.error('❌ Ошибка подключения к MongoDB:', error.message);
         process.exit(1);
     }
 }
